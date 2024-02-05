@@ -3,18 +3,36 @@
 import { Button, TextField } from '@radix-ui/themes'
 import React from 'react';
 import SimpleMdeReact from 'react-simplemde-editor';
-import "easymde/dist/easymde.min.css"
+import {useForm, Controller} from "react-hook-form";
+import "easymde/dist/easymde.min.css";
+import axios from "axios";
+import { useRouter } from 'next/navigation';
+
+
+interface TicketForm {
+  title: string;
+  description: string;
+}
 
 
 const NewTicketPage = () => {
+  const router = useRouter();
+  const {register, control, handleSubmit} = useForm<TicketForm>();
   return (
-    <div className='max-w-xl space-y-3'>
+    <form className='max-w-xl space-y-3' onSubmit={handleSubmit(async (data) => {
+      axios.post('/api/tickets', data);
+      router.push('/tickets')
+    })}>
         <TextField.Root>
-            <TextField.Input placeholder='Title' />
+            <TextField.Input placeholder='Title' {...register('title')} />
         </TextField.Root>
-        <SimpleMdeReact placeholder='Description' />
+        <Controller 
+          name='description'
+          control={control}
+          render={({field}) => <SimpleMdeReact placeholder='Description' {...field} />}
+        /> 
         <Button>Submit New Ticket</Button>
-    </div>
+    </form>
   )
 }
 
