@@ -30,8 +30,10 @@ export default function RootLayout({
           <main className="p-5">
             {children}
           </main>
+        
         </Theme>
       </body>
+      
     </html>
   );
 }
