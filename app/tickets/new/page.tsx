@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createTicketSchema } from '@/app/validationSchemas';
 import { z } from 'zod';
 import ErrorMessage from '@/app/components/ErrorMessage';
+import Spinner from '@/app/components/Spinner';
 
 type TicketForm = z.infer<typeof createTicketSchema>;
 
@@ -22,6 +23,20 @@ const NewTicketPage = () => {
 
   const [error, setError] = useState('');
 
+  const [isSubmiting, setSubmiting] = useState(false);
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      setSubmiting(true);
+      axios.post('/api/tickets', data);
+      router.push('/tickets');
+    } catch (error) {
+      setSubmiting(false);
+      setError('An unexpected error occured.')
+    }
+    
+  })
+
   return (
     <div className='max-w-xl'>
       {
@@ -31,15 +46,7 @@ const NewTicketPage = () => {
         </Callout.Root>
         )
         }
-      <form className='space-y-3' onSubmit={handleSubmit(async (data) => {
-        try {
-          axios.post('/api/tickets', data);
-          router.push('/tickets');
-        } catch (error) {
-          setError('An unexpected error occured.')
-        }
-        
-      })}>
+      <form className='space-y-3' onSubmit={onSubmit}>
           <TextField.Root>
               <TextField.Input placeholder='Title' {...register('title')} />
           </TextField.Root>
@@ -54,7 +61,7 @@ const NewTicketPage = () => {
           <ErrorMessage>
             {errors.description?.message}
           </ErrorMessage>
-          <Button>Submit New Ticket</Button>
+          <Button disabled={isSubmiting}>Submit New Ticket {isSubmiting && <Spinner />}</Button>
       </form>
     </div>
   )
